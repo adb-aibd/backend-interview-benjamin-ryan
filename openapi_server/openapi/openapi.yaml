@@ -1,0 +1,865 @@
+openapi: 3.0.3
+info:
+  description: |
+    API for managing daily foreign exchange rates and recording
+    foreign exchange transactions for a money changer.
+
+    The API does not accept or store customer personal information.
+  title: Money Changer Web API
+  version: 1.0.0
+servers:
+- description: Local development server
+  url: http://localhost:8000
+tags:
+- description: Daily exchange rate management
+  name: Rates
+- description: Foreign exchange transaction management
+  name: Transactions
+paths:
+  /rates:
+    get:
+      operationId: list_rates
+      parameters:
+      - explode: true
+        in: query
+        name: rate_date
+        required: false
+        schema:
+          format: date
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: base_currency
+        required: false
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: form
+      - explode: true
+        in: query
+        name: quote_currency
+        required: false
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: form
+      - explode: true
+        in: query
+        name: side
+        required: false
+        schema:
+          $ref: "#/components/schemas/TransactionSide"
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/DailyRate"
+                type: array
+          description: Daily exchange rates
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+      summary: List daily exchange rates
+      tags:
+      - Rates
+      x-openapi-router-controller: openapi_server.controllers.rates_controller
+    post:
+      description: |
+        Creates a daily rate or updates the existing rate for the same
+        rate date, currency pair, and transaction side.
+      operationId: upsert_rate
+      requestBody:
+        content:
+          application/json:
+            example:
+              rate_date: 2026-02-02
+              base_currency: PHP
+              quote_currency: USD
+              side: SELL
+              rate: "1.3550"
+            schema:
+              $ref: "#/components/schemas/DailyRateUpsert"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRate"
+          description: Daily rate updated
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRate"
+          description: Daily rate created
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+      summary: Create or update a daily exchange rate
+      tags:
+      - Rates
+      x-openapi-router-controller: openapi_server.controllers.rates_controller
+  /rates/{rateDate}/{baseCurrency}/{quoteCurrency}/{side}:
+    delete:
+      operationId: delete_rate
+      parameters:
+      - example: 2026-02-02
+        explode: false
+        in: path
+        name: rateDate
+        required: true
+        schema:
+          format: date
+          type: string
+        style: simple
+      - example: PHP
+        explode: false
+        in: path
+        name: baseCurrency
+        required: true
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: simple
+      - example: USD
+        explode: false
+        in: path
+        name: quoteCurrency
+        required: true
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: simple
+      - example: SELL
+        explode: false
+        in: path
+        name: side
+        required: true
+        schema:
+          $ref: "#/components/schemas/TransactionSide"
+        style: simple
+      responses:
+        "204":
+          description: Daily exchange rate deleted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+        "404":
+          content:
+            application/json:
+              example:
+                code: DAILY_RATE_NOT_FOUND
+                message: Daily exchange rate not found.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Daily exchange rate not found.
+      summary: Delete a daily exchange rate
+      tags:
+      - Rates
+      x-openapi-router-controller: openapi_server.controllers.rates_controller
+    get:
+      operationId: get_rate
+      parameters:
+      - example: 2026-02-02
+        explode: false
+        in: path
+        name: rateDate
+        required: true
+        schema:
+          format: date
+          type: string
+        style: simple
+      - example: PHP
+        explode: false
+        in: path
+        name: baseCurrency
+        required: true
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: simple
+      - example: USD
+        explode: false
+        in: path
+        name: quoteCurrency
+        required: true
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: simple
+      - example: SELL
+        explode: false
+        in: path
+        name: side
+        required: true
+        schema:
+          $ref: "#/components/schemas/TransactionSide"
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRate"
+          description: Daily exchange rate
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+        "404":
+          content:
+            application/json:
+              example:
+                code: DAILY_RATE_NOT_FOUND
+                message: Daily exchange rate not found.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Daily exchange rate not found.
+      summary: Get a daily exchange rate
+      tags:
+      - Rates
+      x-openapi-router-controller: openapi_server.controllers.rates_controller
+    put:
+      operationId: update_rate
+      parameters:
+      - example: 2026-02-02
+        explode: false
+        in: path
+        name: rateDate
+        required: true
+        schema:
+          format: date
+          type: string
+        style: simple
+      - example: PHP
+        explode: false
+        in: path
+        name: baseCurrency
+        required: true
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: simple
+      - example: USD
+        explode: false
+        in: path
+        name: quoteCurrency
+        required: true
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: simple
+      - example: SELL
+        explode: false
+        in: path
+        name: side
+        required: true
+        schema:
+          $ref: "#/components/schemas/TransactionSide"
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyRateUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyRate"
+          description: Daily exchange rate updated
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+        "404":
+          content:
+            application/json:
+              example:
+                code: DAILY_RATE_NOT_FOUND
+                message: Daily exchange rate not found.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Daily exchange rate not found.
+      summary: Replace a daily exchange rate
+      tags:
+      - Rates
+      x-openapi-router-controller: openapi_server.controllers.rates_controller
+  /transactions:
+    get:
+      operationId: list_transactions
+      parameters:
+      - description: Return transactions at or after this timestamp.
+        explode: true
+        in: query
+        name: from
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - description: Return transactions before or at this timestamp.
+        explode: true
+        in: query
+        name: to
+        required: false
+        schema:
+          format: date-time
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: side
+        required: false
+        schema:
+          $ref: "#/components/schemas/TransactionSide"
+        style: form
+      - explode: true
+        in: query
+        name: base_currency
+        required: false
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: form
+      - explode: true
+        in: query
+        name: quote_currency
+        required: false
+        schema:
+          $ref: "#/components/schemas/CurrencyCode"
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/FxTransaction"
+                type: array
+          description: Recorded transactions
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+      summary: List recorded transactions
+      tags:
+      - Transactions
+      x-openapi-router-controller: openapi_server.controllers.transactions_controller
+    post:
+      description: |
+        Records a foreign exchange transaction.
+
+        The transaction timestamp determines the transaction date used
+        to look up the applicable daily exchange rate.
+
+        Exactly one of foreign_amount or base_amount must be supplied.
+
+        The applicable daily rate is captured as effective_rate so that
+        later changes to daily rates do not affect the historical
+        transaction.
+      operationId: create_transaction
+      requestBody:
+        content:
+          application/json:
+            examples:
+              foreignAmount:
+                summary: Foreign amount supplied
+                value:
+                  timestamp: 2026-02-02T10:15:00+08:00
+                  base_currency: PHP
+                  quote_currency: USD
+                  side: SELL
+                  foreign_amount: "1000.00"
+              baseAmount:
+                summary: Base amount supplied
+                value:
+                  timestamp: 2026-02-02T10:15:00+08:00
+                  base_currency: PHP
+                  quote_currency: USD
+                  side: BUY
+                  base_amount: "2000.00"
+            schema:
+              $ref: "#/components/schemas/FxTransactionRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FxTransaction"
+          description: Transaction recorded
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Invalid request.
+        "409":
+          content:
+            application/json:
+              example:
+                code: DAILY_RATE_NOT_FOUND
+                message: No daily rate exists for USD/PHP SELL on 2026-02-02.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: No daily exchange rate exists for the transaction date.
+      summary: Record an FX transaction
+      tags:
+      - Transactions
+      x-openapi-router-controller: openapi_server.controllers.transactions_controller
+  /transactions/{transactionId}:
+    get:
+      operationId: get_transaction
+      parameters:
+      - description: Internal transaction identifier.
+        example: TXN-20260202-000001
+        explode: false
+        in: path
+        name: transactionId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FxTransaction"
+          description: Recorded transaction
+        "404":
+          content:
+            application/json:
+              example:
+                code: TRANSACTION_NOT_FOUND
+                message: Transaction not found.
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Transaction not found.
+      summary: Get a recorded transaction
+      tags:
+      - Transactions
+      x-openapi-router-controller: openapi_server.controllers.transactions_controller
+components:
+  parameters:
+    RateDate:
+      explode: true
+      in: query
+      name: rate_date
+      required: false
+      schema:
+        format: date
+        type: string
+      style: form
+    BaseCurrency:
+      explode: true
+      in: query
+      name: base_currency
+      required: false
+      schema:
+        $ref: "#/components/schemas/CurrencyCode"
+      style: form
+    QuoteCurrency:
+      explode: true
+      in: query
+      name: quote_currency
+      required: false
+      schema:
+        $ref: "#/components/schemas/CurrencyCode"
+      style: form
+    Side:
+      explode: true
+      in: query
+      name: side
+      required: false
+      schema:
+        $ref: "#/components/schemas/TransactionSide"
+      style: form
+    RateDatePath:
+      example: 2026-02-02
+      explode: false
+      in: path
+      name: rateDate
+      required: true
+      schema:
+        format: date
+        type: string
+      style: simple
+    BaseCurrencyPath:
+      example: PHP
+      explode: false
+      in: path
+      name: baseCurrency
+      required: true
+      schema:
+        $ref: "#/components/schemas/CurrencyCode"
+      style: simple
+    QuoteCurrencyPath:
+      example: USD
+      explode: false
+      in: path
+      name: quoteCurrency
+      required: true
+      schema:
+        $ref: "#/components/schemas/CurrencyCode"
+      style: simple
+    SidePath:
+      example: SELL
+      explode: false
+      in: path
+      name: side
+      required: true
+      schema:
+        $ref: "#/components/schemas/TransactionSide"
+      style: simple
+  responses:
+    BadRequest:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Invalid request.
+    RateNotFound:
+      content:
+        application/json:
+          example:
+            code: DAILY_RATE_NOT_FOUND
+            message: Daily exchange rate not found.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Daily exchange rate not found.
+    DailyRateNotFound:
+      content:
+        application/json:
+          example:
+            code: DAILY_RATE_NOT_FOUND
+            message: No daily rate exists for USD/PHP SELL on 2026-02-02.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: No daily exchange rate exists for the transaction date.
+    TransactionNotFound:
+      content:
+        application/json:
+          example:
+            code: TRANSACTION_NOT_FOUND
+            message: Transaction not found.
+          schema:
+            $ref: "#/components/schemas/Error"
+      description: Transaction not found.
+  schemas:
+    CurrencyCode:
+      description: ISO-style three-letter currency code.
+      example: PHP
+      maxLength: 3
+      minLength: 3
+      pattern: "^[A-Z]{3}$"
+      title: base_currency
+      type: string
+    TransactionSide:
+      description: |
+        BUY: The store buys foreign currency from the customer.
+
+        SELL: The store sells foreign currency to the customer.
+      enum:
+      - BUY
+      - SELL
+      title: TransactionSide
+      type: string
+    Decimal:
+      description: |
+        Decimal value represented as a string to preserve exact decimal
+        precision and avoid floating-point rounding errors.
+      example: "1000.00"
+      pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+      title: fee_amount
+      type: string
+    PositiveDecimal:
+      description: Positive decimal value represented as a string.
+      example: "1000.00"
+      pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+      title: rate
+      type: string
+    DailyRateBase:
+      properties:
+        rate_date:
+          description: Date for which the rate applies.
+          example: 2026-02-02
+          format: date
+          title: rate_date
+          type: string
+        base_currency:
+          description: ISO-style three-letter currency code.
+          example: PHP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          title: base_currency
+          type: string
+        quote_currency:
+          description: ISO-style three-letter currency code.
+          example: PHP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          title: base_currency
+          type: string
+        side:
+          $ref: "#/components/schemas/TransactionSide"
+        rate:
+          description: Positive decimal value represented as a string.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: rate
+          type: string
+      required:
+      - base_currency
+      - quote_currency
+      - rate
+      - rate_date
+      - side
+      title: DailyRateBase
+      type: object
+    DailyRateUpsert:
+      allOf:
+      - $ref: "#/components/schemas/DailyRateBase"
+      example:
+        rate_date: 2026-02-02
+        base_currency: PHP
+        quote_currency: PHP
+        side: BUY
+        rate: "1000.00"
+      title: DailyRateUpsert
+    DailyRateUpdate:
+      example:
+        rate: "1000.00"
+      properties:
+        rate:
+          description: Positive decimal value represented as a string.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: rate
+          type: string
+      required:
+      - rate
+      title: DailyRateUpdate
+      type: object
+    DailyRate:
+      allOf:
+      - $ref: "#/components/schemas/DailyRateBase"
+      - properties:
+          created_at:
+            format: date-time
+            readOnly: true
+            type: string
+          updated_at:
+            format: date-time
+            readOnly: true
+            type: string
+        required:
+        - created_at
+        - updated_at
+        type: object
+      example:
+        rate_date: 2026-02-02
+        base_currency: PHP
+        quote_currency: PHP
+        side: BUY
+        rate: "1000.00"
+        created_at: 2000-01-23T04:56:07.000+00:00
+        updated_at: 2000-01-23T04:56:07.000+00:00
+      title: DailyRate
+    FxTransactionBase:
+      description: Common properties shared by all transaction request variants.
+      properties:
+        timestamp:
+          description: Time at which the transaction was executed.
+          example: 2026-02-02T10:15:00+08:00
+          format: date-time
+          title: timestamp
+          type: string
+        base_currency:
+          description: ISO-style three-letter currency code.
+          example: PHP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          title: base_currency
+          type: string
+        quote_currency:
+          description: ISO-style three-letter currency code.
+          example: PHP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          title: base_currency
+          type: string
+        side:
+          $ref: "#/components/schemas/TransactionSide"
+      required:
+      - base_currency
+      - quote_currency
+      - side
+      - timestamp
+      title: FxTransactionBase
+      type: object
+    FxTransactionByForeignAmount:
+      allOf:
+      - $ref: "#/components/schemas/FxTransactionBase"
+      - properties:
+          foreign_amount:
+            $ref: "#/components/schemas/PositiveDecimal"
+        required:
+        - foreign_amount
+        type: object
+      example:
+        timestamp: 2026-02-02T10:15:00+08:00
+        base_currency: PHP
+        quote_currency: PHP
+        side: BUY
+        foreign_amount: "1000.00"
+      not:
+        required:
+        - base_amount
+      title: FxTransactionByForeignAmount
+    FxTransactionByBaseAmount:
+      allOf:
+      - $ref: "#/components/schemas/FxTransactionBase"
+      - properties:
+          base_amount:
+            $ref: "#/components/schemas/PositiveDecimal"
+        required:
+        - base_amount
+        type: object
+      not:
+        required:
+        - foreign_amount
+      title: FxTransactionByBaseAmount
+    FxTransactionRequest:
+      description: |
+        Exactly one of foreign_amount or base_amount must be supplied.
+      oneOf:
+      - $ref: "#/components/schemas/FxTransactionByForeignAmount"
+      - $ref: "#/components/schemas/FxTransactionByBaseAmount"
+      title: FxTransactionRequest
+    FxTransaction:
+      example:
+        transaction_id: TXN-20260202-000001
+        timestamp: 2026-02-02T10:15:00+08:00
+        base_currency: PHP
+        quote_currency: PHP
+        side: BUY
+        foreign_amount: "1000.00"
+        base_amount: "1000.00"
+        effective_rate: "1000.00"
+        fee_amount: "1000.00"
+        rounding_adjustment: "1000.00"
+      properties:
+        transaction_id:
+          description: Internal transaction identifier.
+          example: TXN-20260202-000001
+          readOnly: true
+          title: transaction_id
+          type: string
+        timestamp:
+          example: 2026-02-02T10:15:00+08:00
+          format: date-time
+          readOnly: true
+          title: timestamp
+          type: string
+        base_currency:
+          description: ISO-style three-letter currency code.
+          example: PHP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          title: base_currency
+          type: string
+        quote_currency:
+          description: ISO-style three-letter currency code.
+          example: PHP
+          maxLength: 3
+          minLength: 3
+          pattern: "^[A-Z]{3}$"
+          title: base_currency
+          type: string
+        side:
+          $ref: "#/components/schemas/TransactionSide"
+        foreign_amount:
+          description: Positive decimal value represented as a string.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: rate
+          type: string
+        base_amount:
+          description: Positive decimal value represented as a string.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: rate
+          type: string
+        effective_rate:
+          description: Positive decimal value represented as a string.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: rate
+          type: string
+        fee_amount:
+          description: |
+            Decimal value represented as a string to preserve exact decimal
+            precision and avoid floating-point rounding errors.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: fee_amount
+          type: string
+        rounding_adjustment:
+          description: |
+            Decimal value represented as a string to preserve exact decimal
+            precision and avoid floating-point rounding errors.
+          example: "1000.00"
+          pattern: "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+          title: fee_amount
+          type: string
+      required:
+      - base_amount
+      - base_currency
+      - effective_rate
+      - fee_amount
+      - foreign_amount
+      - quote_currency
+      - rounding_adjustment
+      - side
+      - timestamp
+      - transaction_id
+      title: FxTransaction
+      type: object
+    Error:
+      example:
+        code: VALIDATION_ERROR
+        message: Request validation failed.
+      properties:
+        code:
+          example: VALIDATION_ERROR
+          title: code
+          type: string
+        message:
+          example: Request validation failed.
+          title: message
+          type: string
+      required:
+      - code
+      - message
+      title: Error
+      type: object
