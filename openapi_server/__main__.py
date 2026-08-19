@@ -2,6 +2,7 @@
 
 import connexion
 
+from openapi_server.service_error_handlers import register_error_handlers
 from openapi_server import encoder
 
 
@@ -11,6 +12,8 @@ def main():
     app.add_api('openapi.yaml',
                 arguments={'title': 'Money Changer Web API'},
                 pythonic_params=True)
+
+    register_error_handlers(app.app)
 
     app.run(port=8080)
 

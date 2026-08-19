@@ -1,6 +1,5 @@
 .dockerignore
 .gitignore
-.openapi-generator-ignore
 .travis.yml
 Dockerfile
 README.md
@@ -10,7 +9,6 @@ openapi_server/__main__.py
 openapi_server/controllers/__init__.py
 openapi_server/controllers/rates_controller.py
 openapi_server/controllers/security_controller.py
-openapi_server/controllers/transactions_controller.py
 openapi_server/encoder.py
 openapi_server/models/__init__.py
 openapi_server/models/base_model.py
@@ -19,6 +17,9 @@ openapi_server/models/daily_rate_base.py
 openapi_server/models/daily_rate_update.py
 openapi_server/models/daily_rate_upsert.py
 openapi_server/models/error.py
+openapi_server/models/exchange_rate.py
+openapi_server/models/exchange_rate_base.py
+openapi_server/models/exchange_rate_upsert.py
 openapi_server/models/fx_transaction.py
 openapi_server/models/fx_transaction_base.py
 openapi_server/models/fx_transaction_by_base_amount.py
@@ -27,8 +28,6 @@ openapi_server/models/fx_transaction_request.py
 openapi_server/models/transaction_side.py
 openapi_server/openapi/openapi.yaml
 openapi_server/test/__init__.py
-openapi_server/test/test_rates_controller.py
-openapi_server/test/test_transactions_controller.py
 openapi_server/typing_utils.py
 openapi_server/util.py
 requirements.txt
