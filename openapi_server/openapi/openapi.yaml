@@ -116,19 +116,19 @@ paths:
       tags:
         - Rates
       x-openapi-router-controller: openapi_server.controllers.rates_controller
-  /rates/{rateDate}/{baseCurrency}/{quoteCurrency}/{side}:
+  /rates/{baseCurrency}/{quoteCurrency}/{side}:
     delete:
       operationId: delete_rate
       parameters:
-        - example: 2026-02-02
+        - example: "2026-02-02"
           explode: false
-          in: path
+          in: query
           name: rateDate
-          required: true
+          required: false
           schema:
             format: date
             type: string
-          style: simple
+          style: form
         - example: PHP
           explode: false
           in: path
@@ -180,15 +180,22 @@ paths:
     get:
       operationId: get_rate
       parameters:
-        - example: 2026-02-02
+        - example: "2026-02-02"
           explode: false
-          in: path
+          in: query
           name: rateDate
-          required: true
+          required: false
           schema:
             format: date
             type: string
-          style: simple
+          style: form
+          description: |
+            Filters the rate by the specified date. When specified, the latest
+            rate from that date is returned. If there is no posted rate for
+            the specified date, returns the latest rate.
+
+            Must be less than or equal to today's date (UTC), and greater than
+            UNIX epoch (i.e. 1970-01-01)
         - example: PHP
           explode: false
           in: path
@@ -244,13 +251,13 @@ paths:
       parameters:
         - example: 2026-02-02
           explode: false
-          in: path
+          in: query
           name: rateDate
-          required: true
+          required: false
           schema:
             format: date
             type: string
-          style: simple
+          style: form
         - example: PHP
           explode: false
           in: path
