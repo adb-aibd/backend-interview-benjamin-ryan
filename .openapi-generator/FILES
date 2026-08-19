@@ -9,7 +9,6 @@ openapi_server/__main__.py
 openapi_server/controllers/__init__.py
 openapi_server/controllers/rates_controller.py
 openapi_server/controllers/security_controller.py
-openapi_server/controllers/transactions_controller.py
 openapi_server/encoder.py
 openapi_server/models/__init__.py
 openapi_server/models/base_model.py

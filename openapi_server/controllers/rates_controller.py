@@ -19,28 +19,6 @@ from app.db.models.exchange_rate import ExchangeRateSide
 from app.services.exchange_rate_service import get_exchange_rate, post_exchange_rate
 
 
-def delete_rate(base_currency, quote_currency, side, rate_date=None):  # noqa: E501
-    """Delete a daily exchange rate
-
-     # noqa: E501
-
-    :param base_currency:
-    :type base_currency: str
-    :param quote_currency:
-    :type quote_currency: str
-    :param side:
-    :type side: dict | bytes
-    :param rate_date:
-    :type rate_date: str
-
-    :rtype: Union[None, Tuple[None, int], Tuple[None, int, Dict[str, str]]
-    """
-    rate_date = util.deserialize_date(rate_date)
-    if flask.request.is_json:
-        side = TransactionSide.from_dict(flask.request.get_json())  # noqa: E501
-    return None, 501
-
-
 def get_rate(base_currency, quote_currency, side, rate_date=None):  # noqa: E501
     """Get a daily exchange rate
 
@@ -115,59 +93,11 @@ def get_rate(base_currency, quote_currency, side, rate_date=None):  # noqa: E501
         )
 
 
-def list_rates(rate_date=None, base_currency=None, quote_currency=None):  # noqa: E501
-    """List daily exchange rates
-
-    Returns latest exchange rates.  If neither base nor quote currencies are specified, returns the latest exchange rates for all supported pairs.  # noqa: E501
-
-    :param rate_date: Filters exchange rates by the given date.  If not specified, filters exchange rates by the current date.
-    :type rate_date: str
-    :param base_currency: Filters exchange rates by the given currency.  If not specified, returns the latest exchange rates for all pairs with the specified quote currency.
-    :type base_currency: str
-    :param quote_currency: Filters exchange rates by the given currency.  If not specified, returns the latest exchange rates for all pairs with the specified base currency.
-    :type quote_currency: str
-
-    :rtype: Union[List[DailyRate], Tuple[List[DailyRate], int], Tuple[List[DailyRate], int, Dict[str, str]]
-    """
-    rate_date = util.deserialize_date(rate_date)
-    if flask.request.is_json:
-        side = TransactionSide.from_dict(flask.request.get_json())  # noqa: E501
-    return "do some magic!"
-
-
-def update_rate(base_currency, quote_currency, side, body, rate_date=None):  # noqa: E501
-    """Replace a daily exchange rate
-
-     # noqa: E501
-
-    :param base_currency:
-    :type base_currency: str
-    :param quote_currency:
-    :type quote_currency: str
-    :param side:
-    :type side: dict | bytes
-    :param daily_rate_update:
-    :type daily_rate_update: dict | bytes
-    :param rate_date:
-    :type rate_date: str
-
-    :rtype: Union[DailyRate, Tuple[DailyRate, int], Tuple[DailyRate, int, Dict[str, str]]
-    """
-    rate_date = util.deserialize_date(rate_date)
-    if flask.request.is_json:
-        side = TransactionSide.from_dict(flask.request.get_json())  # noqa: E501
-    daily_rate_update = body
-    if flask.request.is_json:
-        daily_rate_update = DailyRateUpdate.from_dict(flask.request.get_json())  # noqa: E501
-    return "do some magic!"
-
-
 def post_rate(body):  # noqa: E501
-    """Create or update a daily exchange rate
+    """Create an exchange rate
 
-    Creates a daily rate or updates the existing rate for the same rate date, currency pair, and transaction side.  # noqa: E501
+    Creates an exchange rate for the specified rate date, currency pair, and transaction side.  Currency pairs are normalized to use the currency code that comes alphabetically first as the base rate (e.g. posting \&quot;USD/EUR BUY rate\&quot; is saved as a \&quot;EUR/USD SELL 1/rate\&quot;).  # noqa: E501
 
-    Currency pairs are normalized to use the currency code that comes alphabetically first as the base rate (e.g. posting "USD/EUR BUY rate" is saved as a "EUR/USD SELL 1/rate").
     :param daily_rate_upsert:
     :type daily_rate_upsert: dict | bytes
 
