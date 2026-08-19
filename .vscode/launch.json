@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start debug session",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "openapi_server",
+      "subProcess": true,
+      "justMyCode": true,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "Running on (http://127.0.0.1:8080)",
+        "uriFormat": "%s/ui"
+      }
+    }
+  ]
+}

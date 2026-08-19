@@ -1,0 +1,5 @@
+-r requirements.txt
+
+debugpy==1.8.21
+pytest==9.1.1
+ruff==0.16.3
