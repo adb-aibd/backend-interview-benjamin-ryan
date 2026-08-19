@@ -15,9 +15,3 @@ SessionFactory = sessionmaker(
     autoflush=False,
     expire_on_commit=False,
 )
-
-
-def init_db():
-    from app.db.models import currency, exchange_rate
-
-    Base.metadata.create_all(engine)

@@ -2,14 +2,11 @@
 
 import connexion
 
-from app.db import init_db
 from openapi_server.service_error_handlers import register_error_handlers
 from openapi_server import encoder
 
 
 def main():
-    init_db()
-
     app = connexion.App(__name__, specification_dir='./openapi/')
     app.app.json_encoder = encoder.JSONEncoder
     app.add_api('openapi.yaml',
