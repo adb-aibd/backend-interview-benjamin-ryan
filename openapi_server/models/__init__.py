@@ -5,6 +5,9 @@ from openapi_server.models.daily_rate_base import DailyRateBase
 from openapi_server.models.daily_rate_update import DailyRateUpdate
 from openapi_server.models.daily_rate_upsert import DailyRateUpsert
 from openapi_server.models.error import Error
+from openapi_server.models.exchange_rate import ExchangeRate
+from openapi_server.models.exchange_rate_base import ExchangeRateBase
+from openapi_server.models.exchange_rate_upsert import ExchangeRateUpsert
 from openapi_server.models.fx_transaction import FxTransaction
 from openapi_server.models.fx_transaction_base import FxTransactionBase
 from openapi_server.models.fx_transaction_by_base_amount import FxTransactionByBaseAmount
